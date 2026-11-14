@@ -2,7 +2,7 @@
 
 A personal public wall for **Joel Rioflorido**, built with Next.js 16.4.6, React 19.3.1, TypeScript, Tailwind CSS 4, React shadcn/ui, and Supabase. The modern layout uses Joel's supplied portrait, Manrope interface text, and Instrument Serif for the profile name. Visitors can share a short message and an optional photo without an account, using a persistent visitor label or an optional name. The newest messages appear first, arrive live in other browsers, and remain after a refresh.
 
-**Repository: [2peng23/my-wall](https://github.com/2peng23/my-wall), branch `main`. The application is configured for local development; it has not been deployed to Vercel.** Supabase runs as this project's own Docker stack; it is a real Postgres / Data API / Realtime / Storage integration, not a browser-storage simulation.
+**Live site: [My Wall](https://my-wall-gamma-sandy.vercel.app). Source: [2peng23/my-wall](https://github.com/2peng23/my-wall), branch `main`.** Production runs on Vercel with a dedicated hosted Supabase project in Singapore. Local development retains this project's separate Docker stack. Both use real Postgres / Data API / Realtime / Storage integrations.
 
 ## Run locally
 
@@ -41,7 +41,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-browser-safe-public-key
 
 A valid legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY` is accepted as a fallback. Prefer the publishable key for a new project. Never supply a secret API key, service-role JWT, database password, or private token to a `NEXT_PUBLIC_` variable. Local environment files are ignored by version control.
 
-For a hosted Supabase project later, apply all three migrations in order, configure the public URL/key, and restart the app. For a production build, these public variables must exist **before** the build; changing them requires a new build. The frontend never silently falls back to local storage for posts. Missing or invalid configuration shows an unavailable state without inventing posts.
+Production uses Supabase project `aqtzwmwbihhigzdaglrg`; all three migrations are applied and the browser-safe URL/key are configured on Vercel for production and preview. The seven existing local messages and their two photos were copied to production with their original IDs and timestamps. For another hosted project, apply all three migrations in order, configure its public URL/key, and restart the app. For a production build, these public variables must exist **before** the build; changing them requires a new build. The frontend never silently falls back to local storage for posts. Missing or invalid configuration shows an unavailable state without inventing posts.
 
 ## Data and permissions
 
@@ -93,16 +93,13 @@ Accessibility automation is a bounded check, not a claim of comprehensive WCAG c
 
 See `docs/redesign-verification.md` for the current design and identity verification, and `docs/verification.md` for the original build's historical results. `docs/screenshots/` contains real app captures. `npm run capture:demo` writes three explicitly authored example notes only if absent, verifies them after reload, and captures desktop/mobile views. They are local verification examples, not fabricated audience activity or automatic production seed data.
 
-## Later submission
+## Production and submission
 
-The source repository is [2peng23/my-wall](https://github.com/2peng23/my-wall). Deployment and form submission remain separate steps requiring authorization:
+The public production URL is [my-wall-gamma-sandy.vercel.app](https://my-wall-gamma-sandy.vercel.app). The deployment was created from an explicit GitHub commit through Vercel MCP, and Node.js is pinned to `24.x` in the source and hosting settings. Git pushes currently require a separate Vercel deployment; automatic Git deployments are not configured for this project.
 
-1. Keep the GitHub repository updated with source, lockfile, migrations, tests, and documentation; exclude `.env.local`, dependencies, build output, and private traces.
-2. Configure an appropriate hosted Supabase project using the migrations and browser-safe environment variables.
-3. Import the repository into Vercel and set the public Supabase variables before the production build.
-4. Verify the final stable production URL from a fresh browser without Vercel authentication, including real posting, refresh persistence, and live delivery to a second browser.
-5. Capture screenshots with a successfully posted message. An optional 30–60 second screen recording can show posting, cross-browser delivery, and refresh persistence.
-6. At [the application form](https://apply.capm.us/), select **2) Wall** and supply the public production URL, public repository URL, and required screenshots. Submit only when explicitly authorized.
+See [production verification](docs/deployment-verification.md) for the live posting, upload, persistence and Realtime checks. Temporary verification data is removed after each check; the existing wall content remains. Private environment files and local connection metadata stay out of Git.
+
+No hiring-form submission has been made. When authorized, select **2) Wall** at [the application form](https://apply.capm.us/) and supply the public production URL, repository URL, and screenshots. A demo recording is optional.
 
 ## Reference and implementation notes
 

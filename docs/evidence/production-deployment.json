@@ -1,0 +1,32 @@
+{
+  "url": "https://my-wall-gamma-sandy.vercel.app",
+  "deploymentId": "dpl_D8VLfiEYZppz44aBT5SBnpo2L3iW",
+  "commit": "db7adb7eaf4aec6550fe1c371abdc6930abd60c0",
+  "nodeVersion": "24.x",
+  "verifiedAt": "2026-11-14T20:39:06.995Z",
+  "existingMessagesMigrated": 7,
+  "existingPhotosMigrated": 2,
+  "testPostId": "0ce177bc-e809-4aa0-89e8-d58c74220cb6",
+  "http": {
+    "page": 200,
+    "post": 201,
+    "upload": 200,
+    "publicPhoto": 200
+  },
+  "checks": {
+    "publicWithoutLogin": true,
+    "posting": true,
+    "photoUpload": true,
+    "photoBytesMatch": true,
+    "persistenceAfterRefresh": true,
+    "realtimeWithoutRefreshOrPolling": true,
+    "browserIdentityPersists": true,
+    "desktopAndPhoneFitViewport": true
+  },
+  "runtimeErrors": [],
+  "failedRequests": [],
+  "temporaryTestPostRemoved": true,
+  "temporaryTestPhotoRemoved": true,
+  "vercelErrorLogScan": "No matching error/fatal log entries for this deployment in the checked 30-minute window.",
+  "automaticGitDeployments": false
+}
