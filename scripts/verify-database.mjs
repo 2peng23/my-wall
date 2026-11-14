@@ -82,6 +82,41 @@ try {
   });
 
   await check(
+    "Photo-only posts are allowed while empty and invalid posts remain blocked",
+    async () => {
+      const imagePath = `posts/${randomUUID()}/${randomUUID()}.png`;
+      const photoOnlyIdentifier = randomUUID();
+      ownedIdentifiers.push(photoOnlyIdentifier);
+      const { data, error } = await visitor
+        .from("posts")
+        .insert({
+          ...guestFields,
+          id: photoOnlyIdentifier,
+          content: "",
+          image_path: imagePath,
+        })
+        .select("content, image_path")
+        .single();
+      assert.ifError(error);
+      assert.equal(data.content, "");
+      assert.equal(data.image_path, imagePath);
+      for (const fields of [
+        { content: "", image_path: null },
+        { content: " \n ", image_path: imagePath },
+        { content: "a".repeat(281), image_path: imagePath },
+        { content: "", image_path: "invalid-photo-path" },
+      ]) {
+        const candidateIdentifier = randomUUID();
+        ownedIdentifiers.push(candidateIdentifier);
+        const { error } = await visitor
+          .from("posts")
+          .insert({ ...guestFields, id: candidateIdentifier, ...fields });
+        assert.equal(error?.code, "23514");
+      }
+    },
+  );
+
+  await check(
     "Anonymous callers cannot forge creation timestamps",
     async () => {
       for (const forgedField of [{ created_at: "2000-01-01T00:00:00Z" }]) {

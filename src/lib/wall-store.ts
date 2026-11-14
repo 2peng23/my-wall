@@ -238,7 +238,7 @@ export class WallStore {
   ): Promise<boolean> => {
     if (!this.gateway || this.snapshot.isSharing) return false;
     const validationError =
-      validateMessage(content) ||
+      validateMessage(content, !!imagePath) ||
       validateName(identity.name) ||
       (!isVisitorIdentifier(identity.visitorId)
         ? "Your visitor identity isn't ready. Please refresh and try again."

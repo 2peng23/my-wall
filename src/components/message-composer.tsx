@@ -54,7 +54,7 @@ export function MessageComposer({
     isAvailable &&
     !isBusy &&
     !!identity.visitorId &&
-    !validateMessage(message) &&
+    !validateMessage(message, !!selectedPhoto) &&
     !nameError;
 
   function removePhoto() {
@@ -108,7 +108,7 @@ export function MessageComposer({
           }}
           placeholder="What's on your mind?"
           className="message-input"
-          required
+          required={!selectedPhoto}
           disabled={isBusy || !isAvailable}
           aria-invalid={remainingCharacters < 0 || undefined}
           aria-describedby={`character-count${remainingCharacters < 0 ? " character-error" : ""}${error ? " share-error" : ""}`}

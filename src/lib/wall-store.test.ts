@@ -61,6 +61,39 @@ function fixture() {
 }
 
 describe("wall behavior", () => {
+  it("rejects an empty post but saves a photo-only post with an empty caption", async () => {
+    const test = fixture();
+    const store = new WallStore(test.gateway);
+    store.start();
+    expect(await store.share(" \n ", defaultIdentity)).toBe(false);
+    expect(test.gateway.insertPost).not.toHaveBeenCalled();
+    const imagePath = `posts/${crypto.randomUUID()}/${crypto.randomUUID()}.png`;
+    expect(await store.share(" \n ", defaultIdentity, imagePath)).toBe(true);
+    expect(test.gateway.insertPost).toHaveBeenCalledWith(
+      expect.objectContaining({ content: "", image_path: imagePath }),
+    );
+    expect(store.getSnapshot().posts[0].content).toBe("");
+    store.stop();
+  });
+
+  it("reuses the same submission when retrying a failed photo-only post", async () => {
+    const test = fixture();
+    vi.mocked(test.gateway.insertPost).mockRejectedValueOnce(
+      new PostRequestError("Try again"),
+    );
+    const store = new WallStore(test.gateway);
+    store.start();
+    const imagePath = `posts/${crypto.randomUUID()}/${crypto.randomUUID()}.png`;
+    expect(await store.share("", defaultIdentity, imagePath)).toBe(false);
+    const submission = vi.mocked(test.gateway.insertPost).mock.calls[0][0];
+    expect(await store.share("", defaultIdentity, imagePath)).toBe(true);
+    expect(vi.mocked(test.gateway.insertPost).mock.calls[1][0]).toEqual(
+      submission,
+    );
+    expect(store.getSnapshot().posts).toHaveLength(1);
+    store.stop();
+  });
+
   it("never substitutes fake content for missing configuration", () => {
     const store = new WallStore(null);
     store.start();

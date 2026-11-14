@@ -771,3 +771,90 @@ test("older-message loading shows a visible error and safely retries the same pa
     );
   expect(new Set(identifiers).size).toBe(40);
 });
+
+test("shares a photo without text, persists it, and delivers it to another browser", async ({
+  page,
+  browser,
+}) => {
+  const observerContext = await browser.newContext();
+  const observer = await observerContext.newPage();
+  let savedPost:
+    { id: string; content: string; image_path: string } | undefined;
+  try {
+    await Promise.all([
+      page.goto("/"),
+      observer.goto("http://127.0.0.1:3000/"),
+    ]);
+    await expect(
+      observer.getByText("Loading messages…", { exact: true }),
+    ).toHaveCount(0);
+    const textarea = page.getByRole("textbox", { name: "Leave a message" });
+    const share = page.getByRole("button", { name: "Share", exact: true });
+    await expect(share).toBeDisabled();
+    await page
+      .getByLabel("Choose a photo")
+      .setInputFiles("public/my-wall-logo.png");
+    await expect(page.getByAltText("Selected photo preview")).toBeVisible();
+    await expect(share).toBeEnabled();
+    await expect(textarea).not.toHaveAttribute("required");
+    await page.getByRole("button", { name: "Remove photo" }).click();
+    await expect(share).toBeDisabled();
+    await expect(textarea).toHaveAttribute("required");
+    await page
+      .getByLabel("Choose a photo")
+      .setInputFiles("public/my-wall-logo.png");
+    await expect(page.getByAltText("Selected photo preview")).toBeVisible();
+    await textarea.fill("a".repeat(281));
+    await expect(share).toBeDisabled();
+    await textarea.fill("");
+    await expect(share).toBeEnabled();
+    const response = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        new URL(response.url()).pathname === "/rest/v1/posts",
+    );
+    await share.click();
+    const savedResponse = await response;
+    expect(savedResponse.ok()).toBe(true);
+    savedPost = await savedResponse.json();
+    expect(savedPost!.content).toBe("");
+    const row = page.locator(`[data-post-id="${savedPost!.id}"]`);
+    const otherRow = observer.locator(`[data-post-id="${savedPost!.id}"]`);
+    await expect(
+      row.getByAltText("Photo shared with this message"),
+    ).toBeVisible();
+    await expect(
+      otherRow.getByAltText("Photo shared with this message"),
+    ).toBeVisible();
+    await expect(row.locator(".post-message")).toHaveCount(0);
+    await expect(page.getByAltText("Selected photo preview")).toHaveCount(0);
+    await expect(share).toBeDisabled();
+    await page.reload();
+    await expect(
+      row.getByAltText("Photo shared with this message"),
+    ).toBeVisible();
+    const persisted = await administrator
+      .from("posts")
+      .select("content,image_path")
+      .eq("id", savedPost!.id)
+      .single();
+    expect(persisted.error).toBeNull();
+    expect(persisted.data).toEqual({
+      content: "",
+      image_path: savedPost!.image_path,
+    });
+  } finally {
+    await observerContext.close();
+    if (savedPost) {
+      const photoRemoval = await administrator.storage
+        .from("wall-photos")
+        .remove([savedPost.image_path]);
+      expect(photoRemoval.error).toBeNull();
+      const removal = await administrator
+        .from("posts")
+        .delete()
+        .eq("id", savedPost.id);
+      expect(removal.error).toBeNull();
+    }
+  }
+});

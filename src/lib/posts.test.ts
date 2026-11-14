@@ -35,6 +35,14 @@ describe("message validation", () => {
     expect(validateMessage("Hello\nworld")).toBeNull();
     expect(validateMessage("a".repeat(281))).not.toBeNull();
   });
+  it("allows an empty caption only when a photo is attached", () => {
+    expect(validateMessage("", true)).toBeNull();
+    expect(validateMessage(" \n\t", true)).toBeNull();
+    expect(validateMessage("", false)).not.toBeNull();
+    expect(validateMessage("a".repeat(281), true)).not.toBeNull();
+    expect(validateMessage("🌱".repeat(280), true)).toBeNull();
+    expect(validateMessage("🌱".repeat(281), true)).not.toBeNull();
+  });
 });
 
 describe("feed reconciliation", () => {

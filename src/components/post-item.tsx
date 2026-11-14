@@ -41,7 +41,7 @@ export function PostItem({ post }: { post: Post }) {
               {timestampFormatter.format(createdAt)}
             </time>
           </div>
-          <p className="post-message">{post.content}</p>
+          {post.content && <p className="post-message">{post.content}</p>}
           {photoUrl && (
             <a
               href={photoUrl}

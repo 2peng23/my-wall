@@ -26,11 +26,15 @@ export function countCharacters(content: string): number {
   return Array.from(content).length;
 }
 
-export function validateMessage(content: string): string | null {
-  if (!content.trim()) return "Write a little something before sharing.";
+export function validateMessage(
+  content: string,
+  hasPhoto = false,
+): string | null {
   if (countCharacters(content) > MAX_MESSAGE_LENGTH) {
     return `Keep your message to ${MAX_MESSAGE_LENGTH} characters or fewer.`;
   }
+  if (!content.trim() && !hasPhoto)
+    return "Write a message or attach a photo before sharing.";
   return null;
 }
 
