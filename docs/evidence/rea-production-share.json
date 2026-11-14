@@ -1,0 +1,403 @@
+{
+  "evidence_id": "ev_c8f28c810781347baf8df7abdefcc618975c5838f83d60dc9fd54d1dad608f51",
+  "subject": null,
+  "provider": {
+    "id": "rea-playwright-browser-scenario",
+    "name": "REA Playwright browser scenario capture provider",
+    "version": "1"
+  },
+  "analysis_profile": null,
+  "predicate_type": "rea.browser-scenario-capture",
+  "operation": "capture_browser_scenario",
+  "parameters": {
+    "browser": {
+      "mode": "launch",
+      "executable_path": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      "headless": true
+    },
+    "start_url": {
+      "url": "http://127.0.0.1:3001/",
+      "query": []
+    },
+    "environment": {
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "device_scale_factor": 1
+      },
+      "locale": "en-US",
+      "timezone": "Asia/Manila",
+      "color_scheme": "light",
+      "reduced_motion": "reduce",
+      "service_workers": "block"
+    },
+    "actions": [
+      {
+        "step_id": "load-wall",
+        "action": "wait_for_timeout",
+        "duration_ms": 1000
+      },
+      {
+        "step_id": "compose-message",
+        "timeout_ms": 8000,
+        "action": "fill",
+        "locator": {
+          "kind": "css",
+          "selector": "#message"
+        },
+        "value": {
+          "source": "literal",
+          "value": "Here's to small conversations and a kinder internet. ☕"
+        }
+      },
+      {
+        "step_id": "share-message",
+        "timeout_ms": 8000,
+        "action": "click",
+        "locator": {
+          "kind": "css",
+          "selector": "button[type=\"submit\"]"
+        },
+        "button": "left",
+        "click_count": 1
+      },
+      {
+        "step_id": "confirm-message",
+        "action": "wait_for_timeout",
+        "duration_ms": 1000
+      }
+    ],
+    "storage": {
+      "cookies": [],
+      "local_storage": [],
+      "session_storage": []
+    },
+    "secrets": [],
+    "capture": {
+      "after_each_step": [],
+      "at_end": [
+        "accessibility"
+      ],
+      "events": [
+        "page-errors"
+      ],
+      "network": {
+        "request_body": false,
+        "response_body": false,
+        "header_values": false
+      }
+    },
+    "scenario_sha256": "d1d0331dc2e0d7f609d1188f8e40ea303f8d912da4491dfaa45a2d2c02d7ea76"
+  },
+  "raw_result": null,
+  "normalized_result": {
+    "browser": {
+      "mode": "launch",
+      "process_ownership": "provider-owned",
+      "cleanup": "terminated-owned-process",
+      "product": "Chromium",
+      "version": "157.0.8103.51"
+    },
+    "scenario": {
+      "start_origin": "http://127.0.0.1:3001",
+      "action_count": 4,
+      "secret_references": [],
+      "network_content": {
+        "request_body": false,
+        "response_body": false,
+        "header_values": false
+      },
+      "event_families": [
+        "page-errors"
+      ]
+    },
+    "duration_ms": 2844,
+    "steps": [
+      {
+        "step_index": 0,
+        "step_id": "scenario_start",
+        "action": "goto_start",
+        "elapsed_ms": 594,
+        "before_url": {
+          "url": "about:blank",
+          "origin": null,
+          "query_parameter_names": [],
+          "redacted": false
+        },
+        "after_url": {
+          "url": "http://127.0.0.1:3001/",
+          "origin": "http://127.0.0.1:3001",
+          "query_parameter_names": [],
+          "redacted": false
+        },
+        "event_sequence_start": 1,
+        "event_sequence_end": 0,
+        "artifacts": {
+          "screenshot": {
+            "state": "not_requested"
+          },
+          "dom": {
+            "state": "not_requested"
+          },
+          "accessibility": {
+            "state": "not_requested"
+          },
+          "url": {
+            "state": "not_requested"
+          },
+          "history": {
+            "state": "not_requested"
+          },
+          "storage": {
+            "state": "not_requested"
+          }
+        },
+        "completeness": {
+          "status": "complete",
+          "equality_eligible": true,
+          "missing_sections": [],
+          "truncated_sections": []
+        },
+        "status": "completed",
+        "error": null
+      },
+      {
+        "step_index": 1,
+        "step_id": "load-wall",
+        "action": "wait_for_timeout",
+        "elapsed_ms": 1003,
+        "before_url": {
+          "url": "http://127.0.0.1:3001/",
+          "origin": "http://127.0.0.1:3001",
+          "query_parameter_names": [],
+          "redacted": false
+        },
+        "after_url": {
+          "url": "http://127.0.0.1:3001/",
+          "origin": "http://127.0.0.1:3001",
+          "query_parameter_names": [],
+          "redacted": false
+        },
+        "event_sequence_start": 1,
+        "event_sequence_end": 0,
+        "artifacts": {
+          "screenshot": {
+            "state": "not_requested"
+          },
+          "dom": {
+            "state": "not_requested"
+          },
+          "accessibility": {
+            "state": "not_requested"
+          },
+          "url": {
+            "state": "not_requested"
+          },
+          "history": {
+            "state": "not_requested"
+          },
+          "storage": {
+            "state": "not_requested"
+          }
+        },
+        "completeness": {
+          "status": "complete",
+          "equality_eligible": true,
+          "missing_sections": [],
+          "truncated_sections": []
+        },
+        "status": "completed",
+        "error": null
+      },
+      {
+        "step_index": 2,
+        "step_id": "compose-message",
+        "action": "fill",
+        "elapsed_ms": 55,
+        "before_url": {
+          "url": "http://127.0.0.1:3001/",
+          "origin": "http://127.0.0.1:3001",
+          "query_parameter_names": [],
+          "redacted": false
+        },
+        "after_url": {
+          "url": "http://127.0.0.1:3001/",
+          "origin": "http://127.0.0.1:3001",
+          "query_parameter_names": [],
+          "redacted": false
+        },
+        "event_sequence_start": 1,
+        "event_sequence_end": 0,
+        "artifacts": {
+          "screenshot": {
+            "state": "not_requested"
+          },
+          "dom": {
+            "state": "not_requested"
+          },
+          "accessibility": {
+            "state": "not_requested"
+          },
+          "url": {
+            "state": "not_requested"
+          },
+          "history": {
+            "state": "not_requested"
+          },
+          "storage": {
+            "state": "not_requested"
+          }
+        },
+        "completeness": {
+          "status": "complete",
+          "equality_eligible": true,
+          "missing_sections": [],
+          "truncated_sections": []
+        },
+        "status": "completed",
+        "error": null
+      },
+      {
+        "step_index": 3,
+        "step_id": "share-message",
+        "action": "click",
+        "elapsed_ms": 84,
+        "before_url": {
+          "url": "http://127.0.0.1:3001/",
+          "origin": "http://127.0.0.1:3001",
+          "query_parameter_names": [],
+          "redacted": false
+        },
+        "after_url": {
+          "url": "http://127.0.0.1:3001/",
+          "origin": "http://127.0.0.1:3001",
+          "query_parameter_names": [],
+          "redacted": false
+        },
+        "event_sequence_start": 1,
+        "event_sequence_end": 0,
+        "artifacts": {
+          "screenshot": {
+            "state": "not_requested"
+          },
+          "dom": {
+            "state": "not_requested"
+          },
+          "accessibility": {
+            "state": "not_requested"
+          },
+          "url": {
+            "state": "not_requested"
+          },
+          "history": {
+            "state": "not_requested"
+          },
+          "storage": {
+            "state": "not_requested"
+          }
+        },
+        "completeness": {
+          "status": "complete",
+          "equality_eligible": true,
+          "missing_sections": [],
+          "truncated_sections": []
+        },
+        "status": "completed",
+        "error": null
+      },
+      {
+        "step_index": 4,
+        "step_id": "confirm-message",
+        "action": "wait_for_timeout",
+        "elapsed_ms": 1015,
+        "before_url": {
+          "url": "http://127.0.0.1:3001/",
+          "origin": "http://127.0.0.1:3001",
+          "query_parameter_names": [],
+          "redacted": false
+        },
+        "after_url": {
+          "url": "http://127.0.0.1:3001/",
+          "origin": "http://127.0.0.1:3001",
+          "query_parameter_names": [],
+          "redacted": false
+        },
+        "event_sequence_start": 1,
+        "event_sequence_end": 0,
+        "artifacts": {
+          "screenshot": {
+            "state": "not_requested"
+          },
+          "dom": {
+            "state": "not_requested"
+          },
+          "accessibility": {
+            "state": "captured",
+            "value": {
+              "sha256": "11e7a79c5487b1fa33ce3a16455c8537ba40d3028d6825dde36516cdcd46f308",
+              "bytes": 2284,
+              "text": "- document:\n  - link \"Skip to the wall\":\n    - /url: \"#main-content\"\n  - banner: my wall Open to everyone\n  - complementary \"About this wall\":\n    - img \"A simple illustrated visitor avatar\"\n    - paragraph: A place for everyone\n    - heading \"My Wall\" [level=2]\n    - paragraph: A little corner of the internet for passing thoughts and friendly hellos.\n  - main:\n    - paragraph: Old-school wall. New conversations.\n    - heading \"Hello, internet.\" [level=1]\n    - paragraph: Leave a note. Share a thought. Make someone's day.\n    - region \"Write on the wall\":\n      - heading \"Write on the wall\" [level=2]\n      - text: What's on your mind?\n      - textbox \"What's on your mind?\":\n        - /placeholder: A thought, a hello, a small moment from your day…\n      - text: A little kindness goes a long way. 280 left\n      - button \"Choose a photo\"\n      - button \"Add a photo\"\n      - text: Optional · up to 5 MiB Posting as\n      - strong: Visitor\n      - button \"Share\" [disabled]\n    - text: Live updates on\n    - region \"On the wall\":\n      - heading \"On the wall\" [level=2]\n      - text: Newest first\n      - list \"Messages, newest first\":\n        - listitem:\n          - article \"Visitor\":\n            - heading \"Visitor\" [level=3]\n            - time: Nov 15, 2:59 AM\n            - paragraph: Here's to small conversations and a kinder internet. ☕\n        - listitem:\n          - article \"Visitor\":\n            - heading \"Visitor\" [level=3]\n            - time: Nov 15, 2:53 AM\n            - paragraph: One wall, a few passing thoughts, and room for the next hello.\n        - listitem:\n          - article \"Visitor\":\n            - heading \"Visitor\" [level=3]\n            - time: Nov 15, 2:53 AM\n            - paragraph: \"A small reminder for today: step away from the screen, get some fresh air, and come back with a clearer mind. 🌿\"\n        - listitem:\n          - article \"Visitor\":\n            - heading \"Visitor\" [level=3]\n            - time: Nov 15, 2:53 AM\n            - paragraph: Hello, wall! A real message, saved and shared. Glad to have a little corner of the internet back. 👋\n      - paragraph: You're all caught up. Thanks for stopping by.\n    - text: my wall Bring your thoughts. Leave a little kindness.\n  - status: Your message is on the wall.\n  - alert"
+            }
+          },
+          "url": {
+            "state": "not_requested"
+          },
+          "history": {
+            "state": "not_requested"
+          },
+          "storage": {
+            "state": "not_requested"
+          }
+        },
+        "completeness": {
+          "status": "complete",
+          "equality_eligible": true,
+          "missing_sections": [],
+          "truncated_sections": []
+        },
+        "status": "completed",
+        "error": null
+      }
+    ],
+    "events": {
+      "retained": 0,
+      "dropped": 0,
+      "items": []
+    },
+    "completeness": {
+      "status": "complete",
+      "equality_eligible": true,
+      "missing_sections": [],
+      "truncated_sections": []
+    },
+    "limitations": [
+      "Event sequence records provider receipt order; simultaneous browser causality is not inferred.",
+      "Network content is retained only when selected; Playwright response-body bytes are API results and are not guaranteed to match wire bytes.",
+      "Request bytes are limited to what Playwright exposes; not_exposed does not establish body absence or multipart file coverage.",
+      "Network content reads settle within 5 seconds each and the observer does not request bodies from unfinished responses.",
+      "Playwright scenario events do not expose request initiator stacks; receipt order does not prove causality.",
+      "Storage values are hashed only after declared-secret redaction."
+    ]
+  },
+  "confidence": "observed",
+  "authority": "controlled-replay",
+  "environment": {
+    "id": "Chromium@157.0.8103.51",
+    "platform": "unknown",
+    "architecture": "unknown",
+    "isolation": "process"
+  },
+  "limitations": [
+    "Artifact identity is unavailable for this observation.",
+    "Event sequence records provider receipt order; simultaneous browser causality is not inferred.",
+    "Network content is retained only when selected; Playwright response-body bytes are API results and are not guaranteed to match wire bytes.",
+    "Request bytes are limited to what Playwright exposes; not_exposed does not establish body absence or multipart file coverage.",
+    "Network content reads settle within 5 seconds each and the observer does not request bodies from unfinished responses.",
+    "Playwright scenario events do not expose request initiator stacks; receipt order does not prove causality.",
+    "Storage values are hashed only after declared-secret redaction.",
+    "Browser host platform and architecture were not observed."
+  ],
+  "relationship_coverage": null,
+  "locations": [],
+  "evidence_links": []
+}
