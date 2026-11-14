@@ -298,6 +298,88 @@ describe("wall behavior", () => {
     store.stop();
   });
 
+  it("enables pagination when an initially empty wall fills while disconnected", async () => {
+    const test = fixture();
+    const store = new WallStore(test.gateway);
+    store.start();
+    await Promise.resolve();
+    const missedPosts = Array.from({ length: PAGE_SIZE + 5 }, (_, index) =>
+      savedPost({
+        id: `missed-${String(index).padStart(2, "0")}`,
+        content: `Missed ${index}`,
+        image_path: null,
+      }),
+    ).reverse();
+    test.emitPost(missedPosts[0]);
+    vi.mocked(test.gateway.fetchPage).mockResolvedValueOnce({
+      posts: missedPosts.slice(0, PAGE_SIZE),
+      hasMore: true,
+    });
+    await store.refresh();
+    expect(store.getSnapshot().posts).toHaveLength(PAGE_SIZE);
+    expect(store.getSnapshot().hasMore).toBe(true);
+    vi.mocked(test.gateway.fetchPage).mockResolvedValueOnce({
+      posts: missedPosts.slice(PAGE_SIZE),
+      hasMore: false,
+    });
+    await store.loadOlder();
+    expect(test.gateway.fetchPage).toHaveBeenLastCalledWith(
+      missedPosts[PAGE_SIZE - 1],
+    );
+    expect(store.getSnapshot().posts).toEqual(missedPosts);
+    store.stop();
+  });
+
+  it("does not let a stopped save complete a newer submission", async () => {
+    const test = fixture();
+    const oldSave = deferred<Post>();
+    const newSave = deferred<Post>();
+    vi.mocked(test.gateway.insertPost)
+      .mockReturnValueOnce(oldSave.promise)
+      .mockReturnValueOnce(newSave.promise);
+    const store = new WallStore(test.gateway);
+    store.start();
+    const oldShare = store.share("Old submission", defaultIdentity);
+    const oldSubmission = vi.mocked(test.gateway.insertPost).mock.calls[0][0];
+    store.stop();
+    expect(store.getSnapshot().isSharing).toBe(false);
+    store.start();
+    const newShare = store.share("New submission", defaultIdentity);
+    const newSubmission = vi.mocked(test.gateway.insertPost).mock.calls[1][0];
+    oldSave.resolve(savedPost(oldSubmission));
+    expect(await oldShare).toBe(false);
+    expect(store.getSnapshot().isSharing).toBe(true);
+    expect(store.getSnapshot().posts).toEqual([]);
+    newSave.resolve(savedPost(newSubmission));
+    expect(await newShare).toBe(true);
+    expect(store.getSnapshot().posts.map((post) => post.content)).toEqual([
+      "New submission",
+    ]);
+    store.stop();
+  });
+
+  it("discards an uncertain-save lookup after the store stops", async () => {
+    const test = fixture();
+    const lookup = deferred<Post | null>();
+    vi.mocked(test.gateway.insertPost).mockRejectedValueOnce(
+      new PostRequestError("Response lost", true),
+    );
+    vi.mocked(test.gateway.findPost).mockReturnValueOnce(lookup.promise);
+    const store = new WallStore(test.gateway);
+    store.start();
+    const share = store.share("Uncertain submission", defaultIdentity);
+    await Promise.resolve();
+    const submission = vi.mocked(test.gateway.insertPost).mock.calls[0][0];
+    store.stop();
+    lookup.resolve(savedPost(submission));
+    expect(await share).toBe(false);
+    expect(store.getSnapshot()).toMatchObject({
+      posts: [],
+      isSharing: false,
+      shareError: null,
+    });
+  });
+
   it("discards callbacks from a stopped subscription", () => {
     const test = fixture();
     const store = new WallStore(test.gateway);

@@ -8,6 +8,7 @@ export const PHOTO_TYPES: Record<string, string> = {
   "image/webp": "webp",
   "image/gif": "gif",
 };
+export const PHOTO_ACCEPT = Object.keys(PHOTO_TYPES).join(",");
 
 export function validatePhoto(
   file: Pick<File, "type" | "size">,
@@ -21,6 +22,8 @@ export function validatePhoto(
 }
 
 export function createPhotoPath(file: Pick<File, "type">): string {
+  if (!Object.hasOwn(PHOTO_TYPES, file.type))
+    throw new Error("Choose a JPG, PNG, WebP, or GIF image.");
   return `posts/${crypto.randomUUID()}/${crypto.randomUUID()}.${PHOTO_TYPES[file.type]}`;
 }
 

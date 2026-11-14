@@ -1,5 +1,3 @@
-import { visitorLabel } from "@/lib/visitor-identity";
-
 export const MAX_MESSAGE_LENGTH = 280;
 export const PAGE_SIZE = 20;
 
@@ -24,12 +22,6 @@ export type PendingPost = {
   image_path: string | null;
 };
 
-export function postAuthorLabel(
-  post: Pick<Post, "author_name" | "visitor_id">,
-): string {
-  return post.author_name ?? visitorLabel(post.visitor_id);
-}
-
 export function countCharacters(content: string): number {
   return Array.from(content).length;
 }
@@ -42,32 +34,48 @@ export function validateMessage(content: string): string | null {
   return null;
 }
 
+export function comparePostsNewestFirst(
+  firstPost: Post,
+  secondPost: Post,
+): number {
+  const timeDifference =
+    Date.parse(secondPost.created_at) - Date.parse(firstPost.created_at);
+  if (timeDifference) return timeDifference;
+  // Postgres preserves microseconds that JavaScript's Date truncates.
+  const firstMicroseconds = (firstPost.created_at.match(/\.(\d+)/)?.[1] ?? "")
+    .padEnd(6, "0")
+    .slice(3, 6);
+  const secondMicroseconds = (secondPost.created_at.match(/\.(\d+)/)?.[1] ?? "")
+    .padEnd(6, "0")
+    .slice(3, 6);
+  return (
+    secondMicroseconds.localeCompare(firstMicroseconds) ||
+    secondPost.id.localeCompare(firstPost.id)
+  );
+}
+
 export function mergePosts(
-  currentPosts: Post[],
-  incomingPosts: Post[],
+  currentPosts: readonly Post[],
+  incomingPosts: readonly Post[],
 ): Post[] {
   const postsByIdentifier = new Map(
     currentPosts.map((post) => [post.id, post]),
   );
   for (const post of incomingPosts) postsByIdentifier.set(post.id, post);
-  return [...postsByIdentifier.values()].sort((firstPost, secondPost) => {
-    const timeDifference =
-      Date.parse(secondPost.created_at) - Date.parse(firstPost.created_at);
-    if (timeDifference) return timeDifference;
-    // Postgres preserves microseconds that JavaScript's Date truncates.
-    const firstMicroseconds = (firstPost.created_at.match(/\.(\d+)/)?.[1] ?? "")
-      .padEnd(6, "0")
-      .slice(3, 6);
-    const secondMicroseconds = (
-      secondPost.created_at.match(/\.(\d+)/)?.[1] ?? ""
-    )
-      .padEnd(6, "0")
-      .slice(3, 6);
-    return (
-      secondMicroseconds.localeCompare(firstMicroseconds) ||
-      secondPost.id.localeCompare(firstPost.id)
-    );
-  });
+  return [...postsByIdentifier.values()].sort(comparePostsNewestFirst);
+}
+
+export function matchesSubmission(
+  post: Post,
+  submission: PendingPost,
+): boolean {
+  return (
+    post.id === submission.id &&
+    post.content === submission.content &&
+    post.image_path === submission.image_path &&
+    post.visitor_id === submission.visitor_id &&
+    post.author_name === submission.author_name
+  );
 }
 
 export interface PostsGateway {

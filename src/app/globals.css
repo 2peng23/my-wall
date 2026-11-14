@@ -24,14 +24,6 @@
   --radius-lg: var(--radius);
 }
 
-:root {
-  --secondary: #eef1f5;
-  --secondary-foreground: #33475b;
-  --accent: #eef1f5;
-  --accent-foreground: #33475b;
-  --destructive: #a4343d;
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;

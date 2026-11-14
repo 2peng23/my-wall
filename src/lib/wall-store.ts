@@ -1,5 +1,7 @@
 import {
   mergePosts,
+  comparePostsNewestFirst,
+  matchesSubmission,
   PAGE_SIZE,
   PostRequestError,
   validateMessage,
@@ -89,7 +91,7 @@ export class WallStore {
           this.snapshot.hasMore &&
           isNew &&
           oldestLoadedPost &&
-          mergePosts([oldestLoadedPost], [post])[0].id !== post.id
+          comparePostsNewestFirst(post, oldestLoadedPost) > 0
         )
           return;
         const mergedPosts = mergePosts(this.snapshot.posts, [post]);
@@ -120,6 +122,7 @@ export class WallStore {
     this.generation += 1;
     this.stopSubscription?.();
     this.stopSubscription = undefined;
+    this.update({ isLoadingOlder: false, isSharing: false });
   };
 
   refresh = async () => {
@@ -152,7 +155,7 @@ export class WallStore {
       if (generation !== this.generation || sequence !== this.refreshSequence)
         return;
       const mergedPosts = mergePosts(this.snapshot.posts, incomingPosts);
-      const isInitialPage = !this.hasReadInitialPage;
+      const isInitialPage = !this.hasReadInitialPage || !this.cursor;
       const visiblePosts = isInitialPage
         ? mergedPosts.slice(0, PAGE_SIZE)
         : mergedPosts;
@@ -218,6 +221,16 @@ export class WallStore {
     if (this.gateway) this.update({ connection: "reconnecting" });
   };
 
+  private completeShare(post: Post) {
+    this.update({
+      posts: mergePosts(this.snapshot.posts, [post]),
+      isSharing: false,
+      announcement: "Your message is on the wall.",
+    });
+    this.pendingPost = undefined;
+    return true;
+  }
+
   share = async (
     content: string,
     identity: PostingIdentity,
@@ -252,40 +265,26 @@ export class WallStore {
       };
     }
     const submission = this.pendingPost;
+    const generation = this.generation;
     this.update({ isSharing: true, shareError: null, announcement: "" });
     try {
       const post = await this.gateway.insertPost(submission);
-      this.update({
-        posts: mergePosts(this.snapshot.posts, [post]),
-        isSharing: false,
-        announcement: "Your message is on the wall.",
-      });
-      this.pendingPost = undefined;
-      return true;
+      if (generation !== this.generation) return false;
+      return this.completeShare(post);
     } catch (error) {
+      if (generation !== this.generation) return false;
       // A timeout may mean the commit succeeded but its response was lost.
       if (!(error instanceof PostRequestError) || error.isUncertain) {
         try {
           const savedPost = await this.gateway.findPost(submission.id);
-          if (
-            savedPost &&
-            savedPost.content === submission.content &&
-            savedPost.image_path === submission.image_path &&
-            savedPost.visitor_id === submission.visitor_id &&
-            savedPost.author_name === submission.author_name
-          ) {
-            this.update({
-              posts: mergePosts(this.snapshot.posts, [savedPost]),
-              isSharing: false,
-              announcement: "Your message is on the wall.",
-            });
-            this.pendingPost = undefined;
-            return true;
-          }
+          if (generation !== this.generation) return false;
+          if (savedPost && matchesSubmission(savedPost, submission))
+            return this.completeShare(savedPost);
         } catch {
           /* Keep the submission identity for a safe explicit retry. */
         }
       }
+      if (generation !== this.generation) return false;
       this.update({
         isSharing: false,
         shareError:

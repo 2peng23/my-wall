@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { ImagePlus } from "lucide-react";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -10,11 +10,8 @@ import {
   MAX_MESSAGE_LENGTH,
   validateMessage,
 } from "@/lib/posts";
-import {
-  createPhotoPath,
-  uploadPhoto,
-  validatePhotoContents,
-} from "@/lib/photos";
+import { PHOTO_ACCEPT } from "@/lib/photos";
+import { usePhotoAttachment } from "@/hooks/use-photo-attachment";
 import {
   validateName,
   visitorLabel,
@@ -41,15 +38,11 @@ export function MessageComposer({
 }: MessageComposerProps) {
   const [message, setMessage] = useState("");
   const { identity, setName } = useVisitorIdentity();
-  const [selectedPhoto, setSelectedPhoto] = useState<{
-    file: File;
-    preview: string;
-  } | null>(null);
-  const [photoError, setPhotoError] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isCheckingPhoto, setIsCheckingPhoto] = useState(false);
-  const photoSelection = useRef(0);
-  const uploadedPhoto = useRef<{ file: File; path: string } | null>(null);
+  const attachment = usePhotoAttachment();
+  const selectedPhoto = attachment.photo;
+  const photoError = attachment.error;
+  const isUploading = attachment.status === "uploading";
+  const isCheckingPhoto = attachment.status === "checking";
   const submissionLock = useRef(false);
   const fileInputReference = useRef<HTMLInputElement>(null);
   const textareaReference = useRef<HTMLTextAreaElement>(null);
@@ -64,18 +57,8 @@ export function MessageComposer({
     !validateMessage(message) &&
     !nameError;
 
-  useEffect(
-    () => () => {
-      if (selectedPhoto) URL.revokeObjectURL(selectedPhoto.preview);
-    },
-    [selectedPhoto],
-  );
-
   function removePhoto() {
-    photoSelection.current += 1;
-    setSelectedPhoto(null);
-    setPhotoError(null);
-    uploadedPhoto.current = null;
+    attachment.clearPhoto();
     if (fileInputReference.current) fileInputReference.current.value = "";
   }
 
@@ -83,22 +66,9 @@ export function MessageComposer({
     event.preventDefault();
     if (!canShare || !identity.visitorId || submissionLock.current) return;
     submissionLock.current = true;
-    setPhotoError(null);
     try {
-      let photoPath: string | null = null;
-      if (selectedPhoto) {
-        if (uploadedPhoto.current?.file === selectedPhoto.file)
-          photoPath = uploadedPhoto.current.path;
-        else {
-          setIsUploading(true);
-          photoPath = await uploadPhoto(
-            selectedPhoto.file,
-            createPhotoPath(selectedPhoto.file),
-          );
-          uploadedPhoto.current = { file: selectedPhoto.file, path: photoPath };
-          setIsUploading(false);
-        }
-      }
+      const photoPath = await attachment.uploadSelectedPhoto();
+      if (photoPath === false) return;
       if (
         await onShare(
           message,
@@ -110,14 +80,7 @@ export function MessageComposer({
         removePhoto();
         requestAnimationFrame(() => textareaReference.current?.focus());
       }
-    } catch (error) {
-      setPhotoError(
-        error instanceof Error
-          ? error.message
-          : "We couldn't upload your photo. Please try again.",
-      );
     } finally {
-      setIsUploading(false);
       submissionLock.current = false;
     }
   }
@@ -156,40 +119,14 @@ export function MessageComposer({
             type="file"
             id="photo"
             hidden
-            accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
+            accept={PHOTO_ACCEPT}
             disabled={isBusy || !isAvailable}
             aria-label="Choose a photo"
             aria-describedby={photoError ? "photo-error" : undefined}
-            onChange={async (event) => {
+            onChange={(event) => {
               const file = event.target.files?.[0];
-              if (!file) return;
-              removePhoto();
-              const selection = photoSelection.current;
-              setIsCheckingPhoto(true);
-              let preview: string | undefined;
-              try {
-                const validationError = await validatePhotoContents(file);
-                if (validationError) throw new Error(validationError);
-                preview = URL.createObjectURL(file);
-                const photo = new window.Image();
-                photo.src = preview;
-                await photo.decode();
-                if (selection === photoSelection.current) {
-                  setSelectedPhoto({ file, preview });
-                  preview = undefined;
-                }
-              } catch (error) {
-                if (selection === photoSelection.current)
-                  setPhotoError(
-                    error instanceof Error && error.name !== "EncodingError"
-                      ? error.message
-                      : "That photo couldn't be opened. Choose another image.",
-                  );
-              } finally {
-                if (preview) URL.revokeObjectURL(preview);
-                if (selection === photoSelection.current)
-                  setIsCheckingPhoto(false);
-              }
+              event.currentTarget.value = "";
+              if (file) void attachment.selectPhoto(file);
             }}
           />
           <button

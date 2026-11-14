@@ -91,7 +91,7 @@ The integration helpers explicitly require this project's loopback Supabase inst
 
 Accessibility automation is a bounded check, not a claim of comprehensive WCAG conformance or screen-reader testing. Supported layout checks include 320, 390, 600, 667, 768, 1024, and 1440 px, including a 667 × 375 landscape view, reduced-motion emulation, and 200% browser page scaling. The 320 × 568 view also covers an attachment and an upload error without outer-page scrolling.
 
-See `docs/redesign-verification.md` for the current design and identity verification, and `docs/verification.md` for the original build's historical results. `docs/screenshots/` contains real app captures. `npm run capture:demo` writes three explicitly authored example notes only if absent, verifies them after reload, and captures desktop/mobile views. They are local verification examples, not fabricated audience activity or automatic production seed data.
+See [architecture](docs/architecture.md) for component/state boundaries and maintenance guidance, and [design verification](docs/redesign-verification.md) for the interface checks. `docs/screenshots/` contains real app captures. `npm run capture:demo` captures the existing wall at desktop and phone sizes without creating messages. Generated videos belong in `MyWall Video/`, which is excluded from Git.
 
 ## Production and submission
 

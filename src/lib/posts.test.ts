@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   countCharacters,
   mergePosts,
+  matchesSubmission,
+  type PendingPost,
   validateMessage,
   type Post,
 } from "@/lib/posts";
@@ -53,5 +55,29 @@ describe("feed reconciliation", () => {
       [post("b", "2026-11-15T00:00:01Z"), post("a", "2026-11-15T00:00:00Z")],
     );
     expect(result.map((entry) => entry.id)).toEqual(["c", "b", "a"]);
+  });
+});
+
+describe("submission identity", () => {
+  it("accepts only the exact committed submission, independent of the server timestamp", () => {
+    const submission: PendingPost = {
+      id: "same-id",
+      content: "Hello",
+      author_name: null,
+      visitor_id: "same-visitor",
+      image_path: null,
+    };
+    const saved: Post = { ...submission, created_at: "2026-11-15T00:00:00Z" };
+    expect(matchesSubmission(saved, submission)).toBe(true);
+    for (const [field, value] of Object.entries({
+      id: "other-id",
+      content: "Other content",
+      author_name: "Other name",
+      visitor_id: "other-visitor",
+      image_path: "other-photo",
+    }))
+      expect(matchesSubmission({ ...saved, [field]: value }, submission)).toBe(
+        false,
+      );
   });
 });

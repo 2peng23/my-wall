@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   PAGE_SIZE,
+  matchesSubmission,
   PostRequestError,
   type PendingPost,
   type Post,
@@ -74,10 +75,7 @@ export function createPostsGateway(client: SupabaseClient): PostsGateway {
           if (
             !lookupError &&
             existingPost &&
-            existingPost.content === post.content &&
-            existingPost.image_path === post.image_path &&
-            existingPost.visitor_id === post.visitor_id &&
-            existingPost.author_name === post.author_name
+            matchesSubmission(existingPost as Post, post)
           ) {
             return existingPost as Post;
           }

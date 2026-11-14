@@ -1,8 +1,6 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { ProfileSidebar } from "@/components/profile-sidebar";
 import { MessageComposer } from "@/components/message-composer";
 import { PostsFeed } from "@/components/posts-feed";
 import { getSupabaseClient } from "@/lib/supabase";
@@ -41,40 +39,20 @@ export function WallApp() {
   }, [store]);
 
   return (
-    <div className="site-shell">
-      <a className="skip-link" href="#main-content">
-        Skip to the wall
-      </a>
-      <header className="site-header">
-        <div className="header-inner">
-          <span className="wordmark">
-            <Image
-              src="/my-wall-logo.png"
-              alt=""
-              width={40}
-              height={40}
-              className="wordmark-logo"
-            />
-            wall<span>.</span>
-          </span>
-        </div>
-      </header>
-      <div className="page-layout">
-        <ProfileSidebar />
-        <main id="main-content" className="wall-main" aria-label="Joel's wall">
-          <MessageComposer
-            isSharing={state.isSharing}
-            isAvailable={state.connection !== "unavailable"}
-            error={state.shareError}
-            onShare={store.share}
-          />
-          <PostsFeed
-            {...state}
-            onRetry={() => void store.retryRead()}
-            onLoadOlder={() => void store.loadOlder()}
-          />
-        </main>
-      </div>
+    <>
+      <main id="main-content" className="wall-main" aria-label="Joel's wall">
+        <MessageComposer
+          isSharing={state.isSharing}
+          isAvailable={state.connection !== "unavailable"}
+          error={state.shareError}
+          onShare={store.share}
+        />
+        <PostsFeed
+          {...state}
+          onRetry={() => void store.retryRead()}
+          onLoadOlder={() => void store.loadOlder()}
+        />
+      </main>
       <p
         className="sr-only"
         role="status"
@@ -83,6 +61,6 @@ export function WallApp() {
       >
         {state.announcement}
       </p>
-    </div>
+    </>
   );
 }
